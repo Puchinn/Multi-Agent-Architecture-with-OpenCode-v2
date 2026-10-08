@@ -20,7 +20,7 @@ Este documento contiene la arquitectura, las normas de conducta y el lore global
 | **Presentador**          | `presentador`     | Maestro de Ceremonias    | `subagent`    | Anuncios solemnes, bienvenida al público, entusiasmo y presentación de números.                                               |
 | **Payaso Polvorita**     | `payaso`          | Comediante / Interacción | `subagent`    | Humor, chistes, tropezones, improvisaciones cómicas y desorden divertido.                                                     |
 | **Utilero / Acróbata**   | `utilero`         | Técnico / Inventario     | `subagent`    | Gestión del inventario de utilería (`inventario.json`), cálculos de peso/espacio y logística técnica.                         |
-| **El Aprendiz**          | `aprendiz`        | Modelo local (Ollama)    | `subagent`    | Tareas acotadas de código/texto con `ollama/qwen3.8:latest` (RTX 3090). Sólo escribe en `borradores/**`; `steps: 12` y regla 2-3 antibucle. |
+| **El Aprendiz**          | `aprendiz`        | Modelo local (Ollama)    | `subagent`    | Tareas acotadas de código/texto con `ollama/qwen3.8:latest` (RTX 3090). Sólo escribe en `borradores/**` y `web/**`; `steps: 20`, regla 2-3 antibucle y **shell acotado a `node --check *`** para autoverificar sus `.js`. |
 
 ---
 

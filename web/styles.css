@@ -1,0 +1,686 @@
+/* ══════════════════════════════════════════════════════════
+   🎪 Circo Gran Fantasía — Dashboard "en vivo" (Fase 1)
+   Tema: circo nocturno · acentos rojo/oro · 100% offline
+   ══════════════════════════════════════════════════════════ */
+
+:root {
+  --noche-1: #0b0d1a;         /* fondo profundo        */
+  --noche-2: #171a2e;         /* degradado superior    */
+  --noche-3: #231726;         /* degradado cálido      */
+  --rojo:    #b02424;         /* rojo de carpa         */
+  --rojo-vivo: #e03e3e;
+  --oro:     #d4af37;         /* oro de cartel         */
+  --oro-claro: #f0d97c;
+  --papel:   #f3e9d0;         /* texto tipo papel viejo */
+  --papel-suave: #cfc4a5;
+  --tarjeta: #1d2136;
+  --borde:   #3a3f5c;
+  --verde:   #4caf7d;
+  --amarillo:#e0b34c;
+  --fuente-cartel: Georgia, "Palatino Linotype", "Book Antiqua", "Times New Roman", serif;
+  --fuente-cuerpo: "Segoe UI", system-ui, -apple-system, Verdana, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  min-height: 100vh;
+  font-family: var(--fuente-cuerpo);
+  color: var(--papel);
+  background:
+    radial-gradient(ellipse 90% 50% at 50% -10%, rgba(176, 36, 36, 0.28), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 100%, rgba(212, 175, 55, 0.10), transparent 70%),
+    linear-gradient(180deg, var(--noche-2) 0%, var(--noche-1) 55%, var(--noche-1) 100%);
+  background-attachment: fixed;
+}
+
+/* ── Tipografía de cartel ─────────────────────────────── */
+h1, h2, h3, .titulo {
+  font-family: var(--fuente-cartel);
+  font-variant: small-caps;
+  letter-spacing: 0.08em;
+}
+
+/* ═══════════════ CABECERA ═══════════════ */
+.cabecera {
+  position: relative;
+  text-align: center;
+  padding: 2.2rem 1rem 1.4rem;
+  border-bottom: 2px solid var(--oro);
+  background: linear-gradient(180deg, rgba(176,36,36,0.18), transparent);
+}
+
+/* Valona (encaje de rayas) de la carpa */
+.valona {
+  height: 14px;
+  margin-bottom: 1rem;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--rojo) 0 28px,
+    var(--oro) 28px 56px
+  );
+  border-radius: 0 0 50% 50% / 0 0 12px 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6);
+}
+
+.cabecera .titulo {
+  font-size: clamp(1.6rem, 4.5vw, 2.8rem);
+  color: var(--papel);
+  text-shadow: 0 2px 0 #000, 0 0 18px rgba(212, 175, 55, 0.35);
+}
+
+.cabecera .titulo .en-vivo {
+  color: var(--oro-claro);
+  font-size: 0.6em;
+}
+
+.cabecera .lema {
+  margin-top: 0.4rem;
+  color: var(--papel-suave);
+  font-style: italic;
+}
+
+.fila-estado { margin-top: 0.9rem; }
+
+.badge {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--oro);
+  color: var(--oro-claro);
+  background: rgba(212, 175, 55, 0.08);
+}
+
+.badge.conectado {
+  border-color: var(--verde);
+  color: var(--verde);
+  background: rgba(76, 175, 125, 0.10);
+}
+
+/* Insignia honesta de la API de OpenCode (la manda el relé en cada
+   mensaje "estado"): verde ok / rojo caída / ámbar iniciando-sin señal.
+   Transición suave al cambiar de estado. */
+.badge-api-ok,
+.badge-api-caida,
+.badge-api-espera {
+  transition: border-color 0.4s ease, color 0.4s ease, background 0.4s ease;
+}
+.badge-api-ok {
+  border-color: var(--verde);
+  color: var(--verde);
+  background: rgba(76, 175, 125, 0.10);
+}
+.badge-api-caida {
+  border-color: var(--rojo-vivo);
+  color: #f2b8b8;
+  background: rgba(224, 62, 62, 0.12);
+}
+.badge-api-espera {
+  border-color: var(--amarillo);
+  color: var(--oro-claro);
+  background: rgba(224, 179, 76, 0.08);
+}
+
+/* ═══════════════ LAYOUT GENERAL ═══════════════ */
+.escena {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 1.4rem 1rem 3rem;
+  display: grid;
+  gap: 1.4rem;
+}
+
+section, .bambalinas {
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent 40%), var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: 14px;
+  padding: 1.1rem 1.2rem 1.3rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.titulo-act {
+  font-size: 1.15rem;
+  color: var(--oro-claro);
+  border-bottom: 1px dashed var(--borde);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.9rem;
+}
+
+.titulo-act small { color: var(--papel-suave); font-size: 0.75rem; letter-spacing: 0.02em; }
+
+.pista { grid-column: 1 / -1; }
+
+/* ═══════════════ PISTA CENTRAL: PERSONAJES ═══════════════ */
+.fila-agentes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.agente {
+  flex: 1 1 150px;
+  max-width: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1rem 0.8rem 0.9rem;
+  border-radius: 12px;
+  border: 2px solid var(--borde);
+  background: rgba(255, 255, 255, 0.02);
+  transition: border-color 0.4s, background 0.4s;
+}
+
+.agente .avatar {
+  font-size: 2.6rem;
+  line-height: 1;
+  margin-bottom: 0.45rem;
+  filter: saturate(1);
+  transition: filter 0.4s;
+}
+
+.agente h3 {
+  font-size: 1.05rem;
+  color: var(--papel);
+  margin-bottom: 0.15rem;
+}
+
+.agente .estado-texto {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  margin-bottom: 0.55rem;
+  color: var(--papel-suave);
+}
+
+.agente .burbuja {
+  width: 100%;
+  font-size: 0.82rem;
+  font-style: italic;
+  color: var(--papel-suave);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--borde);
+  border-radius: 14px;
+  padding: 0.5rem 0.7rem;
+  position: relative;
+  min-height: 2.4em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* colita de la burbuja */
+.agente .burbuja::before {
+  content: "";
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 7px solid var(--borde);
+}
+
+/* ── ESTADO: reposo ─────────────────────────── */
+.agente.estado-idle { border-color: #4a4e63; }
+.agente.estado-idle .avatar { filter: grayscale(1) brightness(0.75); }
+.agente.estado-idle .burbuja { opacity: 0.75; }
+.agente.estado-idle .estado-texto::before { content: "● "; color: #8a8fa8; }
+
+/* ── ESTADO: trabajando (pulso + brillo) ────── */
+.agente.estado-trabajando {
+  border-color: var(--oro);
+  background: rgba(212, 175, 55, 0.06);
+  animation: pulso 1.8s ease-in-out infinite;
+}
+.agente.estado-trabajando .avatar {
+  animation: brillo 1.8s ease-in-out infinite;
+}
+.agente.estado-trabajando .estado-texto { color: var(--oro-claro); }
+.agente.estado-trabajando .estado-texto::before { content: "● "; color: var(--oro); }
+
+/* ── ESTADO: error (temblor) ────────────────── */
+.agente.estado-error {
+  border-color: var(--rojo-vivo);
+  background: rgba(224, 62, 62, 0.08);
+  animation: temblor 0.45s linear infinite;
+}
+.agente.estado-error .burbuja { border-color: var(--rojo-vivo); color: #f2b8b8; }
+.agente.estado-error .estado-texto { color: var(--rojo-vivo); }
+.agente.estado-error .estado-texto::before { content: "● "; color: var(--rojo-vivo); }
+
+/* ═══════════════ KEYFRAMES (leyes de la casa) ═══════════════ */
+
+/* pulso: la tarjeta respira oro mientras trabaja */
+@keyframes pulso {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.45); }
+  50%      { box-shadow: 0 0 0 12px rgba(212, 175, 55, 0); }
+}
+
+/* temblor: el personaje duda cuando algo falla */
+@keyframes temblor {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-2px) rotate(-0.4deg); }
+  40% { transform: translateX( 2px) rotate( 0.4deg); }
+  60% { transform: translateX(-1.5px); }
+  80% { transform: translateX( 1.5px); }
+}
+
+/* brillo: destello cálido en los ojos (el avatar) */
+@keyframes brillo {
+  0%, 100% { filter: drop-shadow(0 0 2px rgba(212, 175, 55, 0.4)) brightness(1); }
+  50%      { filter: drop-shadow(0 0 10px rgba(240, 217, 124, 0.9)) brightness(1.15); }
+}
+
+/* ═══════════════ BAMBALINAS (FEED) ═══════════════ */
+.bambalinas { align-self: start; }
+
+.feed {
+  list-style: none;
+  max-height: 340px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding-right: 0.3rem;
+}
+
+.feed li {
+  font-size: 0.85rem;
+  padding: 0.45rem 0.65rem;
+  border-left: 3px solid var(--oro);
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 0 8px 8px 0;
+  line-height: 1.35;
+}
+
+.feed li time {
+  display: block;
+  font-size: 0.68rem;
+  color: var(--papel-suave);
+  letter-spacing: 0.08em;
+}
+
+.feed li.feed-error { border-left-color: var(--rojo-vivo); }
+.feed li.feed-vacio { border-left-color: var(--borde); font-style: italic; }
+
+/* Filtro «sólo mensajes del circo»: oculta las líneas de eventos (data-grupo).
+   Los mensajes del circo y los ⚠️ avisos no llevan data-grupo: siguen visibles. */
+#feed.solo-circo li[data-grupo] { display: none; }
+
+/* ══ Barra de controles de bambalinas (pausa / limpiar / filtro) ══ */
+.barra-bambalinas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.7rem;
+}
+
+.barra-bambalinas button {
+  cursor: pointer;
+  font-family: var(--fuente-cuerpo);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--oro);
+  background: linear-gradient(180deg, rgba(212,175,55,0.14), rgba(212,175,55,0.04));
+  color: var(--oro-claro);
+  transition: background 0.25s, box-shadow 0.25s, transform 0.15s;
+}
+
+.barra-bambalinas button:hover {
+  background: linear-gradient(180deg, rgba(212,175,55,0.30), rgba(212,175,55,0.10));
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.35);
+  transform: translateY(-1px);
+}
+
+.barra-bambalinas button:active { transform: translateY(0); }
+
+.chk-solo-circo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  color: var(--papel-suave);
+  cursor: pointer;
+  user-select: none;
+}
+
+.chk-solo-circo input {
+  cursor: pointer;
+  accent-color: var(--oro);
+}
+
+/* Contador de eventos de bambalinas: pastilla discreta, mismo tono que
+   .contador-bodega — se queda quieta en la barra mientras el feed avanza. */
+.contador-eventos {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--oro-claro);
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums; /* dígito a dígito del 9 al 10 sin baile */
+  margin-left: auto;                  // se apoya a la derecha de la barra
+  cursor: default;
+}
+
+/* ═══════════════ BOLETERÍA ═══════════════ */
+.parrilla-boleteria {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.subtitulo-act {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--papel-suave);
+  margin-bottom: 0.6rem;
+}
+
+.chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+/* Los chips son <button> reales: reset de botones + cursor + foco. */
+.chip {
+  font: inherit;
+  font-size: 0.82rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--oro);
+  background: linear-gradient(180deg, rgba(212,175,55,0.14), rgba(212,175,55,0.04));
+  color: var(--oro-claro);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.25s, box-shadow 0.25s, transform 0.15s;
+}
+
+.chip:hover {
+  background: linear-gradient(180deg, rgba(212,175,55,0.30), rgba(212,175,55,0.10));
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.35);
+  transform: translateY(-1px);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--oro-claro);
+  outline-offset: 2px;
+}
+
+.chip:active { transform: translateY(0); }
+
+/* Chip seleccionado (aria-pressed="true"): oro encendido + borde más vivo. */
+.chip-activo {
+  border-color: var(--oro-claro);
+  background: linear-gradient(180deg, rgba(212,175,55,0.38), rgba(212,175,55,0.16));
+  color: #fff3c9;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.45);
+}
+
+.chip-skill {
+  border-color: var(--rojo-vivo);
+  background: linear-gradient(180deg, rgba(176,36,36,0.22), rgba(176,36,36,0.06));
+  color: #f0c9c9;
+}
+
+.chip-skill:hover {
+  background: linear-gradient(180deg, rgba(176,36,36,0.40), rgba(176,36,36,0.10));
+  box-shadow: 0 0 8px rgba(224, 62, 62, 0.35);
+}
+
+.chip-skill.chip-activo {
+  border-color: var(--rojo-vivo);
+  background: linear-gradient(180deg, rgba(176,36,36,0.50), rgba(176,36,36,0.18));
+  color: #ffdcdc;
+}
+
+/* Panel de detalle de la boletería: caja discreta, oculta sin selección */
+.detalle-boleteria {
+  margin-top: 1rem;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--papel-suave);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px dashed var(--oro);
+  border-radius: 10px;
+}
+
+.detalle-boleteria:empty { display: none; } /* sin selección, la caja desaparece */
+
+/* ═══════════════ BODEGA: FILTRO ═══════════════ */
+.fila-busqueda-bodega {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.9rem;
+}
+
+.etiqueta-busqueda {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--papel-suave);
+}
+
+.campo-busqueda-bodega {
+  flex: 1 1 220px;
+  max-width: 340px;
+  font-family: var(--fuente-cuerpo);
+  font-size: 0.85rem;
+  color: var(--papel);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+.campo-busqueda-bodega::placeholder { color: var(--papel-suave); opacity: 0.7; }
+
+.campo-busqueda-bodega:focus {
+  outline: none;
+  border-color: var(--oro);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.25);
+}
+
+.contador-bodega {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--oro-claro);
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  white-space: nowrap;
+}
+
+.celda-sin-resultados {
+  font-style: italic;
+  color: var(--papel-suave);
+  text-align: center;
+}
+
+/* ═══════════════ BODEGA ═══════════════ */
+.tablero { overflow-x: auto; }
+
+.tabla-inventario {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  min-width: 480px;
+}
+
+.tabla-inventario th,
+.tabla-inventario td {
+  padding: 0.55rem 0.7rem;
+  border-bottom: 1px solid var(--borde);
+  text-align: left;
+}
+
+.tabla-inventario th {
+  font-family: var(--fuente-cartel);
+  color: var(--oro-claro);
+  letter-spacing: 0.08em;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+}
+
+.tabla-inventario td.num,
+.tabla-inventario th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Botones de orden en las cabeceras de bodega: heredan tipografía/color
+   del th, sin chrome propio; hover en oro y foco visible (outline de vuelta). */
+.btn-orden {
+  font: inherit;
+  font-family: var(--fuente-cartel);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--oro-claro);
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.btn-orden:hover { color: var(--oro); text-decoration: underline; }
+
+.btn-orden:focus {
+  outline: 2px solid var(--oro-claro);
+  outline-offset: 2px;
+}
+
+.tabla-inventario tbody tr:hover { background: rgba(212, 175, 55, 0.05); }
+
+.tabla-inventario tfoot td {
+  font-weight: 700;
+  border-bottom: none;
+  border-top: 2px solid var(--oro);
+  color: var(--oro-claro);
+}
+
+.pill-estado {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+}
+
+.pill-estado.operativo        { color: var(--verde); }
+.pill-estado.mantenimiento    { color: var(--amarillo); }
+.pill-estado.dado_de_baja     { color: var(--rojo-vivo); }
+.pill-estado.en_reparacion    { color: var(--amarillo); }
+
+/* ═══════════════ ZÓCALO (BITÁCORA) ═══════════════ */
+.bitacora {
+  border-color: var(--oro);
+  background:
+    linear-gradient(180deg, rgba(212,175,55,0.07), transparent 55%),
+    var(--tarjeta);
+}
+
+.lista-bitacora { list-style: none; display: flex; flex-direction: column; gap: 0.8rem; }
+
+.lista-bitacora li {
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+/* Cada entrada del zócalo: <details> nativo (abrir/cerrar sin JS). */
+.lista-bitacora details {
+  border: 1px solid var(--borde);
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 10px;
+  padding: 0.55rem 0.8rem;
+}
+
+.lista-bitacora summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.1rem 0.55rem;
+  font-weight: 600;
+}
+
+/* Quita la flecha nativa y pone la nuestra (▸ cerrado / ▾ abierto) */
+.lista-bitacora summary::-webkit-details-marker { display: none; }
+.lista-bitacora summary::before {
+  content: "▸";
+  color: var(--oro);
+  font-size: 0.9em;
+  transition: transform 0.2s;
+}
+.lista-bitacora details[open] summary::before { content: "▾"; }
+
+.lista-bitacora summary:hover { text-decoration: underline; }
+
+.lista-bitacora summary:focus-visible {
+  outline: 2px solid var(--oro-claro);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.time.fecha,
+.lista-bitacora summary .fecha {
+  color: var(--papel-suave);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+.lista-bitacora .titulo-entrada { color: var(--papel); }
+
+.lista-bitacora .cuerpo-entrada {
+  margin-top: 0.5rem;
+  padding-left: 1.1rem;
+  color: var(--papel-suave);
+}
+
+/* ═══════════════ PIE ═══════════════ */
+.pie {
+  text-align: center;
+  padding: 1.2rem 1rem 2rem;
+  color: var(--papel-suave);
+  font-size: 0.8rem;
+  border-top: 1px solid var(--borde);
+}
+
+.pie code {
+  background: rgba(212, 175, 55, 0.12);
+  padding: 0.1rem 0.4rem;
+  border-radius: 6px;
+  color: var(--oro-claro);
+}
+
+/* ═══════════════ RESPONSIVE BÁSICO ═══════════════ */
+@media (max-width: 720px) {
+  .cabecera { padding-top: 1.4rem; }
+  .fila-agentes { flex-direction: column; align-items: stretch; }
+  .agente { max-width: none; flex-direction: row; flex-wrap: wrap; gap: 0.6rem; text-align: left; }
+  .agente .avatar { font-size: 2rem; margin-bottom: 0.2rem; }
+  .agente h3, .agente .estado-texto { margin-bottom: 0; }
+  .agente .burbuja { flex-basis: 100%; }
+  .tabla-inventario { min-width: 0; font-size: 0.8rem; }
+}

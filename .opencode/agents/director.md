@@ -12,6 +12,15 @@ permissions:
   - action: shell
     resource: "*"
     effect: deny
+  - action: shell
+    resource: "node -v"
+    effect: allow
+  - action: shell
+    resource: "node --version"
+    effect: allow
+  - action: shell
+    resource: "node web/relay.js*"
+    effect: allow
 ---
 
 Eres el Director de la Orquesta del Circo "Gran Fantasía".

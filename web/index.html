@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎪 Circo Gran Fantasía — en vivo</title>
+  <meta name="description" content="Dashboard 'Circo en Vivo' — Fase 2: relé en vivo (SSE /api/live) con simulador de respaldo. 100% offline, sin dependencias.">
+  <meta name="theme-color" content="#1a1f36">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='12'%20fill='%231a1f36'/%3E%3Cpath%20d='M32%206%20L59%2054%20L5%2054%20Z'%20fill='%23e0b34c'/%3E%3Crect%20x='3'%20y='52'%20width='58'%20height='7'%20rx='2'%20fill='%239e2b25'/%3E%3Crect%20x='25'%20y='34'%20width='14'%20height='18'%20fill='%231a1f36'/%3E%3Ccircle%20cx='32'%20cy='6'%20r='4'%20fill='%23f2c14e'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- ═══════════════════════════════════════════════════════════
+       FASE 2 — añadido local (relé en vivo).
+       Sólo estilos de apoyo para lo nuevo (badge SIN SEÑAL, estado
+       "desconectado" del relé, contador de sesiones).
+       Sin dependencias externas: todo vive en este archivo.
+       ═══════════════════════════════════════════════════════════ -->
+  <style>
+    /* SIMULADO (ámbar) — el .badge base ya es dorado/ámbar; lo dejo explícito */
+    .badge.badge-simulado {
+      border-color: var(--amarillo);
+      color: var(--oro-claro);
+      background: rgba(224, 179, 76, 0.08);
+    }
+    /* SIN SEÑAL (rojo) — SSE murió tras haber funcionado */
+    .badge.badge-sin-senal {
+      border-color: var(--rojo-vivo);
+      color: #f2b8b8;
+      background: rgba(224, 62, 62, 0.12);
+    }
+    /* Contador de sesiones activas (rellena app.js cuando llega un estado del relé) */
+    .contador-sesiones { font-size: 0.72rem; cursor: default; }
+    /* Agente "desconectado" (lo emite el relé si la API de OpenCode cae) */
+    .agente.estado-desconectado {
+      border-style: dashed;
+      border-color: #5c5050;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .agente.estado-desconectado .avatar { filter: grayscale(1) brightness(0.5); }
+    .agente.estado-desconectado .estado-texto { color: #d9a0a0; }
+    .agente.estado-desconectado .estado-texto::before { content: "● "; color: var(--rojo-vivo); }
+    .agente.estado-desconectado .burbuja { opacity: 0.75; }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════ CABECERA ═══════════════ -->
+  <header class="cabecera">
+    <div class="valona" aria-hidden="true"></div>
+    <h1 class="titulo">🎪 Circo Gran Fantasía <span class="en-vivo">— en vivo</span></h1>
+    <p class="lema">Río Segundo, Córdoba · donde la máquina y el elenco comparten pista</p>
+    <div class="fila-estado">
+      <span id="indicador-enlace" class="badge badge-simulado" role="status" aria-live="polite">
+        🟡 SIMULADO
+      </span>
+      <span id="contador-sesiones" class="badge contador-sesiones" aria-live="polite">
+        🎟️ sesiones: —
+      </span>
+      <span id="salud-api" class="badge" role="status" aria-live="polite">
+        ⏳ API: —
+      </span>
+    </div>
+  </header>
+
+  <main class="escena">
+
+    <!-- ═══════════════ PISTA CENTRAL (5 personajes) ═══════════════ -->
+    <section class="pista" aria-label="Pista central — agentes">
+      <h2 class="titulo-act">🔦 Pista central</h2>
+      <div class="fila-agentes" id="fila-agentes">
+        <!-- Las 5 tarjetas (Director, Presentador, Polvorita, Don Barnaby, El Aprendiz)
+             las pinta app.js en este contenedor con su estado: idle / trabajando / error -->
+      </div>
+    </section>
+
+    <!-- ═══════════════ BAMBALINAS (feed de actividad) ═══════════════ -->
+    <aside class="bambalinas" aria-label="Bambalinas — actividad en vivo">
+      <h2 class="titulo-act">🎭 Bambalinas <small>(lo último primero)</small></h2>
+      <div class="barra-bambalinas" role="toolbar" aria-label="Controles del feed">
+        <button id="btn-pausar" type="button">Pausar</button>
+        <button id="btn-limpiar" type="button">Limpiar</button>
+        <label class="chk-solo-circo"><input type="checkbox" id="chk-solo-circo"> Sólo mensajes del circo</label>
+        <span id="contador-eventos" class="contador-eventos" aria-live="polite">📡 eventos: 0</span>
+      </div>
+      <ul id="feed" class="feed" aria-live="polite">
+        <li class="feed-vacio">La carpa está en silencio… hasta que el simulador respire.</li>
+      </ul>
+    </aside>
+
+    <!-- ═══════════════ CARTEL DE BOLETERÍA ═══════════════ -->
+    <section class="boletaria" aria-label="Boletería — skills y comandos disponibles">
+      <h2 class="titulo-act">🎟️ Boletería</h2>
+      <div class="parrilla-boleteria">
+        <div class="boleteria-grupo">
+          <h3 class="subtitulo-act">Comandos</h3>
+          <div class="chips" id="chips-comandos"><!-- pinta app.js --></div>
+        </div>
+        <div class="boleteria-grupo">
+          <h3 class="subtitulo-act">Skills</h3>
+          <div class="chips" id="chips-skills"><!-- pinta app.js --></div>
+        </div>
+      </div>
+      <div id="detalle-boleteria" class="detalle-boleteria" role="status" aria-live="polite"></div>
+    </section>
+
+    <!-- ═══════════════ PANEL DE BODEGA ═══════════════ -->
+    <section class="bodega" aria-label="Panel de bodega — inventario">
+      <h2 class="titulo-act">📦 Bodega · inventario_items</h2>
+
+      <!-- Filtro de bodega: busca por código o nombre (insensible a mayúsculas y acentos) -->
+      <div class="fila-busqueda-bodega">
+        <label for="buscar-bodega" class="etiqueta-busqueda">Filtrar utilería</label>
+        <input type="search" id="buscar-bodega" class="campo-busqueda-bodega"
+               placeholder="Buscar por código o nombre…" autocomplete="off"
+               aria-describedby="contador-bodega">
+        <span id="contador-bodega" class="contador-bodega" aria-live="polite">—</span>
+      </div>
+
+      <div class="tablero">
+        <table class="tabla-inventario">
+          <thead>
+            <tr>
+              <th aria-sort="none"><button type="button" class="btn-orden" data-campo="codigo">Código</button></th>
+              <th aria-sort="none"><button type="button" class="btn-orden" data-campo="nombre">Nombre</button></th>
+              <th class="num" aria-sort="none"><button type="button" class="btn-orden" data-campo="cantidad">Cant.</button></th>
+              <th class="num" aria-sort="none"><button type="button" class="btn-orden" data-campo="peso_kg">Peso (kg)</button></th>
+              <th aria-sort="none"><button type="button" class="btn-orden" data-campo="estado">Estado</button></th>
+            </tr>
+          </thead>
+          <tbody id="filas-inventario"><!-- pinta app.js --></tbody>
+          <tfoot id="fila-total"><!-- pinta app.js --></tfoot>
+        </table>
+      </div>
+    </section>
+
+    <!-- ═══════════════ ZÓCALO (bitácora) ═══════════════ -->
+    <section class="bitacora" aria-label="Zócalo — bitácora del Director">
+      <h2 class="titulo-act">📜 Zócalo · bitácora del Director</h2>
+      <ul id="lista-bitacora" class="lista-bitacora"><!-- pinta app.js --></ul>
+    </section>
+
+  </main>
+
+  <footer class="pie">
+    <p>Fase 2 del <code>PLAN-WEB-CIRCO.md</code> · relé en vivo (<code>web/relay.js</code>, SSE <code>/api/live</code>) con simulador de respaldo · 100% offline — sin CDN, sin redes, sin excusas.</p>
+  </footer>
+
+  <script src="app.js" defer></script>
+</body>
+</html>

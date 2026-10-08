@@ -1,6 +1,6 @@
 # 🎪 PLAN — Página Web "Circo en Vivo" (Visualización de Agentes)
 
-> **Estado:** 🟡 Pausado por orden del público — plan archivado para retomar después.
+> **Estado:** 🟢 **EN MARCHA** — Fase 0 ✅ (reconocimiento real: auth Basic `opencode:PW` en `127.0.0.1:49374`, SIN CORS → relé obligatorio; `/api/session/active` y `/api/session/{id}/message` con campo `agent` + tool states listos) · Fase 1 ✅ (prototipo estático en `web/`, construido y verificado por El Aprendiz) — siguiente: Fase 2 (relé en vivo).
 > **Creado:** 8 de Octubre de 2026 · **Autor:** Director de Orquesta (`director`)
 
 ---

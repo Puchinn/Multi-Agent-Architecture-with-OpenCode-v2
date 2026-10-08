@@ -7,6 +7,48 @@
         "url": "http://127.0.0.1:54321/mcp?features=docs%2Cdatabase%2Cdebugging%2Cdevelopment",
         "enabled": true
       }
+    },
+    "chrome-devtools": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "chrome-devtools-mcp@latest",
+        "--no-usage-statistics"
+      ]
+    }
+  },
+  "providers": {
+    "ollama": {
+      "models": {
+        "qwen3.8:latest": {
+          "name": "Qwen 3.8 (local, RTX 3090)",
+          "capabilities": {
+            "tools": true,
+            "input": ["text"],
+            "output": ["text"]
+          },
+          "limit": {
+            "context": 72000
+          },
+          "variants": [
+            {
+              "id": "sin-pensar",
+              "body": {
+                "think": false,
+                "reasoning_effort": "none"
+              }
+            },
+            {
+              "id": "poco-pensar",
+              "body": {
+                "think": false,
+                "reasoning_effort": "low"
+              }
+            }
+          ]
+        }
+      }
     }
   }
 }
