@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "ultima_actualizacion": "2026-10-08",
+  "items": [
+    {
+      "id": "UTL-001",
+      "nombre": "Trapecio mayor",
+      "categoria": "acrobacia",
+      "cantidad": 1,
+      "peso_kg": 45,
+      "estado": "operativo",
+      "ubicacion": "carpa / vagón 2",
+      "notas": "Cuerdas y mosquetones revisados el 01/10/2026"
+    },
+    {
+      "id": "UTL-002",
+      "nombre": "Colchonetas de acrobacia",
+      "categoria": "acrobacia",
+      "cantidad": 6,
+      "peso_kg": 14,
+      "estado": "operativo",
+      "ubicacion": "bodega / estantería norte",
+      "notas": "Fundas lavadas el 03/10/2026; dos con costura reforzada"
+    },
+    {
+      "id": "UTL-003",
+      "nombre": "Bolas de malabares (caucho)",
+      "categoria": "utilería",
+      "cantidad": 12,
+      "peso_kg": 0.3,
+      "estado": "operativo",
+      "ubicacion": "vagón 1 / arcón de malabares",
+      "notas": "Se pierde una cada gira; contar antes y después de cada función"
+    },
+    {
+      "id": "UTL-004",
+      "nombre": "Trajes de Arlequín (escena 3)",
+      "categoria": "disfraz",
+      "cantidad": 4,
+      "peso_kg": 1.2,
+      "estado": "operativo",
+      "ubicacion": "vagón 1 / arcón de disfraces",
+      "notas": "Planchar la noche anterior; el del número 2 tiene un botón de repuesto cosido"
+    },
+    {
+      "id": "UTL-005",
+      "nombre": "Amplificador de escenario 500 W",
+      "categoria": "sonido",
+      "cantidad": 2,
+      "peso_kg": 28,
+      "estado": "operativo",
+      "ubicacion": "carpa / control de sonido",
+      "notas": "Cable de alimentación del nº1 con cinta aisladora; vigilar en cada montaje"
+    },
+    {
+      "id": "UTL-006",
+      "nombre": "Focos PAR 64",
+      "categoria": "iluminación",
+      "cantidad": 10,
+      "peso_kg": 6.5,
+      "estado": "operativo",
+      "ubicacion": "carpa / torre de iluminación",
+      "notas": "Llevados 3 bombillas de repuesto en la caja ámbar"
+    },
+    {
+      "id": "UTL-007",
+      "nombre": "Lona principal de la carpa",
+      "categoria": "carpa",
+      "cantidad": 1,
+      "peso_kg": 180,
+      "estado": "operativo",
+      "ubicacion": "bodega / contenedor",
+      "notas": "Impermeabilizada el 25/09/2026; secar bien antes de volver al contenedor"
+    },
+    {
+      "id": "UTL-008",
+      "nombre": "Mástiles y puntales de la carpa",
+      "categoria": "carpa",
+      "cantidad": 8,
+      "peso_kg": 22,
+      "estado": "operativo",
+      "ubicacion": "bodega / contenedor",
+      "notas": "Dos puntales con óxido superficial; lijar y pintar en la próxima parada"
+    },
+    {
+      "id": "UTL-009",
+      "nombre": "Arnés acrobático homologado",
+      "categoria": "seguridad",
+      "cantidad": 5,
+      "peso_kg": 2.5,
+      "estado": "operativo",
+      "ubicacion": "bodega / taller del utilero",
+      "notas": "Arnés nº3 con costuras desgastadas: costuras rehechas y reforzadas; revisión y prueba de carga firmadas por Don Barnaby el 08/10/2026. Las 5 unidades quedan aptas para uso en alto."
+    },
+    {
+      "id": "UTL-010",
+      "nombre": "Taburete de equilibrista (madera vieja)",
+      "categoria": "utilería",
+      "cantidad": 0,
+      "peso_kg": 3.5,
+      "estado": "dado_de_baja",
+      "ubicacion": "bodega / rincón de chatarra",
+      "notas": "Resquebrajado en la gira de agosto 2026; se conserva el registro, no se reutiliza"
+    }
+  ]
+}

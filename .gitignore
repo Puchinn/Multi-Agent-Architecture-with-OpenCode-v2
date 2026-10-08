@@ -1,0 +1,14 @@
+# --- OpenCode / Node ---
+node_modules/
+
+# --- Supabase (estado local, no se comparte) ---
+supabase/.temp/
+supabase/.branches/
+supabase/.env
+
+# --- Sistema / editores ---
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
