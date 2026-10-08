@@ -319,7 +319,8 @@ Este archivo es mantenido exclusivamente por el **Director de Orquesta**. Aquí 
 - **Prevención antes de subir:** barrido de secretos en el árbol de trabajo (**0 coincidencias** de credenciales/tokens) y `.gitignore` ampliado con `web/.relay.pid` (runtime del relé, no debe versionarse).
 - **Commit `05ba55a`** — *feat(web): auditoría en vivo con DevTools y 7 tareas del Aprendiz autoverificadas*: **13 archivos, 2.146 inserciones** (`web/` completo, agentes con la herramienta `node --check`, `AGENTS.md`, `opencode.json`, `PLAN-WEB-CIRCO.md`, `MEMORY.md`, `borradores/`). **Árbol limpio.**
 - **Notas del Director:**
-  - _Historial: `bf2112e` (arquitectura inicial) → `05ba55a` (la carpa en vivo). Pte. subir a GitHub cuando el público cree el repo (el README aún lleva `<tu-usuario>` como placeholder)._
+  - _Historial: `bf2112e` (arquitectura inicial) → `05ba55a` (la carpa en vivo) → `45bf750` (registro de la faena). **Todo ya empujado a `origin/main`** (`Puchinn/Multi-Agent-Architecture-with-OpenCode-v2`) — por eso el `45bf750` **no se aplasta**: reescribirlo obligaría a un force-push. Lección: registrar en la bitácora **antes** de commitear, para no necesitar dos commits._
+  - _8-oct (tarde): **documentación** — captura real del dashboard en `docs/circo-en-vivo.png` y sección _Circo en Vivo_ en el README (características, requisito Node.js, paso 4 de la puesta en marcha, tabla de agentes y permisos actualizados con `steps: 20` + shell `node --check`). Técnica de la foto: el `fullPage` deja el fondo transparente porque el `body` usa `background-attachment: fixed` → apagarlo **en caliente** con un `evaluate` antes de capturar y restaurarlo después (sin tocar el CSS)._
 
 ---
 

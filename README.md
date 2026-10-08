@@ -13,6 +13,7 @@
 - **Skills temáticas:** `cartelera-circense` (cartelera oficial con precios y programa) e `inventario-tecnico` (estructura y reglas del stock).
 - **Bitácora persistente `MEMORY.md`:** registro de funciones, ensayos, faenas y decisiones — escritura exclusiva del Director.
 - **Inventario en Supabase Postgres:** tabla `inventario_items` con RLS cerrado, checks de integridad, trigger de auditoría y seed de 10 ítems (626,90 kg).
+- **🌐 Circo en Vivo (sección web):** dashboard en tiempo real en `http://127.0.0.1:7777` — los eventos de la sesión traducidos del JSON crudo a lenguaje de carpa, con bodega ordenable, boletería clicable e insignia de salud de la API.
 - **Opcional — modelo local:** agente "El Aprendiz" corriendo `qwen3.8` vía Ollama en una RTX 3090, con permisos de contención y reglas antibucle.
 
 ---
@@ -43,6 +44,8 @@
                                 └─────────────────────┘   └──────────────────┘
 ```
 
+El relé **`web/relay.js`** refleja los eventos de la sesión en el dashboard _Circo en Vivo_ (`:7777`), y `web/ollama-proxy.js` queda como sonda de diagnóstico para el modelo local.
+
 ---
 
 ## 📋 Requisitos
@@ -52,9 +55,10 @@
 | **[OpenCode](https://opencode.ai) v2**                                          | ✅ Sí       | Ejecutar el circo (TUI + agentes + MCP)            |
 | **Docker + [Supabase CLI](https://supabase.com/docs/guides/local-development)** | Recomendado | Base de datos local del inventario (Postgres 17)   |
 | **[Ollama](https://ollama.com) + GPU NVIDIA**                                   | Opcional    | Modelo local para el agente "El Aprendiz"          |
+| **Node.js 18+**                                                                 | Para la web | Relé del _Circo en Vivo_ (`node web/relay.js`)     |
 | Modelo en la nube conectado en OpenCode                                         | ✅ Sí       | El Director y el elenco usan tu proveedor habitual |
 
-> Sin Supabase, el circo funciona pero el Utilero no tendrá inventario. Sin Ollama, no hay El Aprendiz. El resto del elenco no los necesita.
+> Sin Supabase, el circo funciona pero el Utilero no tendrá inventario. Sin Ollama, no hay El Aprendiz. Sin Node.js, no hay dashboard web. El resto del elenco no los necesita.
 
 ---
 
@@ -92,6 +96,30 @@ OpenCode **auto-descubre** Ollama en `127.0.0.1:11434` — no hace falta configu
 
 **Verificación:** pídele al Director un ensayo del Aprendiz y debe cerrar con su veredicto `✅ HECHO`.
 
+### 4. (Opcional) El Circo en Vivo (sección web)
+
+```bash
+node web/relay.js     # relé SSE + dashboard en 127.0.0.1:7777
+```
+
+Abre **http://127.0.0.1:7777** y sigue la función en directo — el detalle de la pantalla está más abajo, en _Circo en Vivo_.
+
+---
+
+## 🌐 Circo en Vivo (la sección web)
+
+![Circo en Vivo — dashboard en tiempo real](docs/circo-en-vivo.png)
+
+Un dashboard servido por el relé SSE `web/relay.js` en **`http://127.0.0.1:7777`**, pensado para mirar la función sin tener que leer la terminal:
+
+- **Fichas del elenco:** los 5 agentes con su rol, modo y permisos.
+- **Pista Central:** estado del Director (en vivo / ocupado / desconectado) con su insignia de frescura.
+- **Bambalinas:** eventos de la sesión **traducidos del JSON crudo a lenguaje de carpa**, con agrupación de ráfagas (`×8`), contador de eventos y controles de **pausa**, **limpiar** y filtro _sólo circo_.
+- **Boletería:** horarios y precios **clicables** con su detalle desplegable.
+- **Bodega:** el inventario **ordenable** por columnas (▲▼ con `aria-sort`) y su peso total.
+- **Zócalo:** bitácora de la sesión con marcas de tiempo (`<details>` + `<time datetime>`).
+- **Insignia de salud de la API** (`#salud-api`) y favicon propio: consola del navegador limpia, sin 404.
+
 ---
 
 ## 🎭 Uso
@@ -106,18 +134,19 @@ Abre `opencode` en la raíz del proyecto y prueba:
 | _"cuenta un chiste"_                       | El Director delega en Polvorita                                                                                                               |
 | _"¿cómo vamos de stock?"_                  | Don Barnaby consulta Supabase y entrega el parte de bodega                                                                                    |
 | _"haz que el Aprendiz resuma la bitácora"_ | El modelo local trabaja en `borradores/` bajo supervisión                                                                                     |
+| `http://127.0.0.1:7777`                    | **Circo en Vivo:** la función en directo — eventos, boletería y bodega ordenable                                                               |
 
 ---
 
 ## 🤖 Los agentes
 
-| Agente           | Rol                                    | Modo       | Permisos                                                                               |
-| :--------------- | :------------------------------------- | :--------- | :------------------------------------------------------------------------------------- |
-| 🎼 `director`    | Orquestador; escribe `MEMORY.md`       | `primary`  | ✅ `MEMORY.md` · ✅ delegar · ❌ shell                                                 |
-| 🎤 `presentador` | Maestro de Ceremonias                  | `subagent` | ❌ todo (read-only)                                                                    |
-| 🤡 `payaso`      | Polvorita, humor y bromas              | `subagent` | ❌ todo (read-only)                                                                    |
-| 🔧 `utilero`     | Don Barnaby; inventario y logística    | `subagent` | ✅ escritura de utilería · ❌ shell · ❌ delegar                                       |
-| 🎓 `aprendiz`    | Modelo local (Ollama), tareas acotadas | `subagent` | ✅ lectura + escritura **sólo en `borradores/**`** · `steps: 12` · regla 2-3 antibucle |
+| Agente           | Rol                                    | Modo       | Permisos                                                                                                              |
+| :--------------- | :------------------------------------- | :--------- | :-------------------------------------------------------------------------------------------------------------------- |
+| 🎼 `director`    | Orquestador; escribe `MEMORY.md`       | `primary`  | ✅ `MEMORY.md` · ✅ delegar · ✅ shell acotado (`node -v`, `node web/relay.js*`)                                        |
+| 🎤 `presentador` | Maestro de Ceremonias                  | `subagent` | ❌ todo (read-only)                                                                                                   |
+| 🤡 `payaso`      | Polvorita, humor y bromas              | `subagent` | ❌ todo (read-only)                                                                                                   |
+| 🔧 `utilero`     | Don Barnaby; inventario y logística    | `subagent` | ✅ escritura de utilería · ❌ shell · ❌ delegar                                                                      |
+| 🎓 `aprendiz`    | Modelo local (Ollama), tareas acotadas | `subagent` | ✅ edición en `borradores/**` y `web/**` · `steps: 20` · shell acotado a `node --check` · regla 2-3 antibucle          |
 
 ---
 
@@ -137,7 +166,7 @@ Tabla **`public.inventario_items`** (Supabase, migración `20261008170011`):
 ## 🧠 Modelo local (opcional)
 
 - **Modelo:** `qwen3.8:latest` (27,3B, Q4_K_M ≈ 17,6 GB VRAM) — servido por Ollama en la RTX 3090.
-- **Agente `aprendiz`:** subagente con permisos por defecto denegados, escritura limitada a `borradores/**`, tope duro de `steps: 12` y **regla 2-3 antibucle** (máximo 2 intentos por enfoque → cambiar o parar).
+- **Agente `aprendiz`:** subagente con permisos por defecto denegados, escritura limitada a `borradores/**` y `web/**`, tope duro de `steps: 20`, **shell acotado a `node --check *`** (su único comprobador) y **regla 2-3 antibucle** (máximo 2 intentos por enfoque → cambiar o parar).
 - **Protocolo de cierre:** toda respuesta termina con `✅ HECHO` / `⚠️ BLOQUEADO` / `❌ FALLIDO` + su verificación.
 - Verificado: tool-calling correcto y respuestas en ~1,8 s en caliente.
 
@@ -150,9 +179,17 @@ orquesta/
 ├── README.md                  # Este folleto
 ├── AGENTS.md                  # Manual de operaciones y lore (instrucciones globales)
 ├── MEMORY.md                  # Bitácora del circo (escritura: sólo el Director)
-├── opencode.json              # MCP de Supabase
+├── opencode.json              # MCP de Supabase + variantes de modelo (#sin-pensar, #poco-pensar)
 ├── inventario.json            # Legacy (sólo lectura)
-├── borradores/                # Único lugar donde escribe El Aprendiz
+├── borradores/                # Borradores de El Aprendiz
+├── web/
+│   ├── relay.js               # Relé SSE + servidor del dashboard (:7777)
+│   ├── index.html             # Estructura del Circo en Vivo
+│   ├── app.js                 # Relé, feed, bodega, boletería e insignias
+│   ├── styles.css             # Tema de la carpa
+│   └── ollama-proxy.js        # Sonda de diagnóstico para Ollama
+├── docs/
+│   └── circo-en-vivo.png      # Captura del dashboard (este README)
 ├── .opencode/
 │   ├── agents/                # director, presentador, payaso, utilero, aprendiz
 │   ├── commands/              # /funcion, /ensayo
@@ -172,7 +209,8 @@ orquesta/
 - **`inventario_items`** — escritura exclusiva del `utilero`; RLS cerrado al público de la Data API.
 - **`inventario.json`** — legacy, sólo lectura para todos.
 - **`presentador` y `payaso`** — read-only puro: generan narrativa y me la devuelven.
-- **`aprendiz`** — sólo `borradores/**`, sin shell, con tope de pasos.
+- **`director`** — además de la bitácora, shell acotado a `node -v`, `node --version` y `node web/relay.js*` (arrancar el relé).
+- **`aprendiz`** — sólo `borradores/**` y `web/**`, con shell acotado a `node --check` y tope de 20 pasos.
 - Las skills de Supabase aconsejan: cargar `supabase-postgres-best-practices` antes de cualquier DDL y cerrar cada tarea con verificación.
 
 ---
