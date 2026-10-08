@@ -1,7 +1,7 @@
 ---
 description: El Aprendiz — tareas acotadas de código y texto con el modelo local (Ollama/qwen3.8 en la RTX 3090), bajo supervisión del Director. Sólo para trabajos cortos y verificables; escribe borradores, no toca la carpa.
 mode: subagent
-model: ollama/qwen3.8:latest
+model: ollama/qwen3.8:latest#sin-pensar
 steps: 20
 color: "#8b5cf6"
 permissions:
